@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "firebase": "^3.7.1",
-    "node-telegram-bot-api": "^0.24.0"
+    "node-telegram-bot-api": "^0.24.0",
+    "restify": "^4.3.0"
   },
   "author": "figui",
   "license": "ISC"
