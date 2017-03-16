@@ -81,7 +81,7 @@ bot.onText(/\/deny/, (msg, match) => {
 bot.onText(/\/current/, (msg, match) => {
     nerdpoints.current()
         .then((data) => {
-            bot.sendMessage(msg.chat.id, `Votacion para : ${userToString(data.user)}\nPuntos : ${data.isAddition ? "+" : "-"}${data.points}`, {parse_mode : "Markdown"});
+            bot.sendMessage(msg.chat.id, `Votacion para : *${userToString(data.user)}* Puntos : *${data.isAddition ? "+" : "-"}${data.points}*`, {parse_mode : "Markdown"});
         })
 
         .catch((err) => {
