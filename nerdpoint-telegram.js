@@ -23,14 +23,14 @@ let validPayload = (msg) => {
 };
 
 let userToString = (user) => {
-    return user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.id;
+    return user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : (user.first_name ? user.first_name : user.id);
 };
 
 let vote = (msg, action) => {
     nerdpoints.vote(msg.from.id, action)
         .then((data) => {
             if(data.isRemoved) {
-                nerdpoints.get(true).then((data) => {  bot.sendMessage(msg.chat.id, data, { parse_mode : "Markdown" }); })
+                nerdpoints.get(true).then((data) => {  bot.sendMessage(msg.chat.id, `Votacion ${action == nerdpoints.APPROVE ? "aprobada" : "denegada"}! la lista quedo :\n${data}` , { parse_mode : "Markdown" }); })
             } else {
                 bot.sendMessage(msg.chat.id, `${action == nerdpoints.APPROVE ? "Approved" : "Denied"}!!! para ${userToString(data.user)} con ${data.points} puntos`);
             }
