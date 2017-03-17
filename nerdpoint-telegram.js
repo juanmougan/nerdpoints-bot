@@ -39,6 +39,8 @@ let vote = (msg, action) => {
         .catch((err) => {
             if(err.code == 1) {
                 bot.sendMessage(msg.chat.id, `${userToString(msg.from)} ya votaste para los ${err.data.points} puntos de ${userToString(err.data.user)}. GATO!!!!`, { parse_mode : "Markdown" })
+            } else if (err.code == 2) {
+                bot.sendMessage(msg.chat.id, `No te podes votar a vos ameeeeeeoooooo!!!`, { parse_mode : "Markdown" })
             } else {
                 console.error(err);
                 bot.sendMessage(msg.chat.id, "Ups!! algo salio mal");
@@ -82,7 +84,11 @@ bot.onText(/\/current/, (msg, match) => {
     nerdpoints.current(3)
         .then((data) => {
             let text = "";
-            data.forEach((item, index) => { text += `${index + 1} - Para *${userToString(item.value.user)}* Puntos : *${item.value.isAddition ? "+" : "-"}${item.value.points}*${index == 0 ? "* <= Actual*" : ""}\n` });
+            data.forEach((item, index) => {
+                let approves = item.value.approve ? 1 : 0;
+                let deny = item.value.deny ? 1 : 0;
+                text += `${index + 1} - *${userToString(item.value.user)}* : *${item.value.isAddition ? "+" : "-"}${item.value.points}* A : *${approves}* D: *${deny}* ${index == 0 ? "* <= Actual*" : ""}\n`
+            });
             bot.sendMessage(msg.chat.id, text, {parse_mode : "Markdown"});
         })
 
