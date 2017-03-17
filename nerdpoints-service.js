@@ -76,12 +76,15 @@ var vote = (user, action) => {
 		.then((current) => {
 			let firstKey = current.key
 			let cur = current.value;
-			if(!cur[action]) {
+
+			if(cur.user.id == user) {
+                throw createError(2, "No te podes votar a vos ameo!", cur);
+			} else if(!cur[action]) {
 				cur[action] = {}; cur[action][user] = 1;
 				return root.ref(`current/${firstKey}`).update(cur).then((data) => {return cur});
 			} else if(cur[action][user]) {
 				throw createError(1, "el usuario ya voto", cur);
-			} else {
+            } else {
 				return add(cur.user, cur.points, cur.isAddition)
 					.then(() => {
 						return root.ref(`current/${firstKey}`).remove();
