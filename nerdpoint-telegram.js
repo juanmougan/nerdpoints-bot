@@ -30,7 +30,7 @@ let vote = (msg, action) => {
     nerdpoints.vote(msg.from.id, action)
         .then((data) => {
             if(data.isRemoved) {
-                nerdpoints.get(true).then((data) => {  bot.sendMessage(msg.chat.id, `Votacion ${action == nerdpoints.APPROVE ? "aprobada" : "denegada"}! la lista quedo :\n${data}` , { parse_mode : "Markdown" }); })
+                nerdpoints.get(true).then((data) => {  bot.sendMessage(msg.chat.id, `Votación ${action == nerdpoints.APPROVE ? "aprobada" : "denegada"}! la lista quedo :\n${data}` , { parse_mode : "Markdown" }); })
             } else {
                 bot.sendMessage(msg.chat.id, `${action == nerdpoints.APPROVE ? "Approved" : "Denied"}!!! para ${userToString(data.user)} con ${data.points} puntos`);
             }
@@ -38,7 +38,7 @@ let vote = (msg, action) => {
 
         .catch((err) => {
             if(err.code == 1) {
-                bot.sendMessage(msg.chat.id, `${userToString(msg.from)} ya votaste para los ${err.data.points} puntos de ${userToString(err.data.user)}. GATO!!!!`)
+                bot.sendMessage(msg.chat.id, `${userToString(msg.from)} ya votaste para los ${err.data.points} puntos de ${userToString(err.data.user)}. GATO!!!!`, { parse_mode : "Markdown" })
             } else {
                 console.error(err);
                 bot.sendMessage(msg.chat.id, "Ups!! algo salio mal");
@@ -79,15 +79,17 @@ bot.onText(/\/deny/, (msg, match) => {
 });
 
 bot.onText(/\/current/, (msg, match) => {
-    nerdpoints.current()
+    nerdpoints.current(3)
         .then((data) => {
-            bot.sendMessage(msg.chat.id, `Votacion para : *${userToString(data.user)}* Puntos : *${data.isAddition ? "+" : "-"}${data.points}*`, {parse_mode : "Markdown"});
+            let text = "";
+            data.forEach((item, index) => { text += `${index + 1} - Para *${userToString(item.value.user)}* Puntos : *${item.value.isAddition ? "+" : "-"}${item.value.points}*${index == 0 ? "* <= Actual*" : ""}\n` });
+            bot.sendMessage(msg.chat.id, text, {parse_mode : "Markdown"});
         })
 
         .catch((err) => {
             console.error(err);
             if(err.code == 1) {
-                bot.sendMessage(msg.chat.id, "No hay votacion vigente");
+                bot.sendMessage(msg.chat.id, "No hay votación vigente, manda nerdpoint para agregar una votación nueva mulo!!!");
             } else {
                 bot.sendMessage(msg.chat.id, "Ups!! algo salio mal");
             }

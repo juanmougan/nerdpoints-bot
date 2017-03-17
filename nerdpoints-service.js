@@ -12,7 +12,21 @@ let app = firebase.initializeApp({
 
 let root = app.database();
 let ref = root.ref("users");
+let currentValues = [];
 
+let currentRef = root.ref("current");
+
+currentRef.on("child_added", (data)=>{
+    currentValues.push({key : data.key, value : data.val()});
+});
+
+currentRef.on("child_removed", (data)=>{
+    currentValues = currentValues.filter((item) => { return item.key != data.key });
+});
+
+currentRef.on("child_changed", (data)=>{
+    currentValues.forEach((item) => { if(item.key == data.key) { item.value = data.val() } })
+});
 
 let get = (prettyPrint) => {
 	return ref.once("value").then((data) => { return prettyPrint ? pretty(data) : data });
@@ -40,28 +54,28 @@ let push = (user, points, isAddition) => {
     return root.ref("current").push({"user": user, "points": points, "isAddition": isAddition})
 };
 
-let current = () => {
-	return new Promise((res, rej) => {
-	    root.ref("current").limitToFirst(1).once("child_added").then((data) => {
-	        if(data.exists()) { res(data.val() )} else { rej(createError(1, "No hay votacion vigente", null))}
-	    })
-
-        .catch((err) => {
-            rej(createError(1, "No hay votacion vigente", null))
-        })
-	});
-
+let current = (n) => {
+    return new Promise((res, rej) => {
+        if(currentValues.length > 0 && !n) {
+            res(currentValues[0]);
+        } else if(n && currentValues.length >= n) {
+            res(currentValues.slice(0, n));
+        } else if(n && currentValues.length > 0 && currentValues.length <= n) {
+            res(currentValues.slice(0, currentValues.length));
+        } else if(currentValues.length == 0){
+            rej(createError(1, "No current data", null));
+        } else {
+            rej(createError(1, "No current data", null));
+        }
+    });
 };
 
 
 var vote = (user, action) => {
-   return root.ref("current").limitToFirst(1).once("value")
+   return current()
 		.then((current) => {
-			if(!current) {
-				return createError(2, "current does not exists", null);
-			}
-			let firstKey = Object.keys(current.val())[0];
-			let cur = current.val()[firstKey];
+			let firstKey = current.key
+			let cur = current.value;
 			if(!cur[action]) {
 				cur[action] = {}; cur[action][user] = 1;
 				return root.ref(`current/${firstKey}`).update(cur).then((data) => {return cur});
@@ -84,7 +98,6 @@ var vote = (user, action) => {
 			}
 		})
 };
-
 
 let pretty = (persons) => {
 	let users = [];
