@@ -87,7 +87,7 @@ bot.onText(/\/current/, (msg, match) => {
             data.forEach((item, index) => {
                 let approves = item.value.approve ? 1 : 0;
                 let deny = item.value.deny ? 1 : 0;
-                text += `${index + 1} - *${userToString(item.value.user)} *${item.value.isAddition ? "+" : "-"}${item.value.points}* A : *${approves}* D: *${deny}* ${index == 0 ? "* <= Actual*" : ""}\n`
+                text += `${index + 1} - ${userToString(item.value.user)} *${item.value.isAddition ? "+" : "-"}${item.value.points}* A : *${approves}* D: *${deny}* ${index == 0 ? "* <= Actual*" : ""}\n`
             });
             bot.sendMessage(msg.chat.id, text, {parse_mode : "Markdown"});
         })
