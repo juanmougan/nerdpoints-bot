@@ -32,8 +32,8 @@ let vote = (msg, action) => {
             if(data.isRemoved) {
                 nerdpoints.get(true).then((data) => {  bot.sendMessage(msg.chat.id, `Votación ${action == nerdpoints.APPROVE ? "aprobada" : "denegada"}! la lista quedo :\n${data}` , { parse_mode : "Markdown" }); })
             } else {
-                let action == nerdpoints.APPROVE ? "Approved" : "Denied"
-                bot.sendMessage(msg.chat.id, `${action}!!! *Falta 1 voto mas!!*`, {parse_mode : "Markdown"});
+                let a = action == nerdpoints.APPROVE ? "Approved" : "Denied"
+                bot.sendMessage(msg.chat.id, `${a}!!! *Falta 1 voto mas!!*`, {parse_mode : "Markdown"});
             }
         })
 
