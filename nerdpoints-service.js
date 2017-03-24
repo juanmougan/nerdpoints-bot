@@ -10,6 +10,10 @@ let app = firebase.initializeApp({
 	messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
 });
 
+const MAX_APPROVES = 2;
+const APPROVE = "approve";
+const DENY = "deny";
+
 let root = app.database();
 let ref = root.ref("users");
 let currentValues = [];
@@ -70,6 +74,16 @@ let current = (n) => {
     });
 };
 
+let currents = () => {
+    return new Promise((res, rej) => {
+        if(currentValues.length > 0) {
+            res(currentValues)
+        } else {
+            rej(createError(1, "No current data", null));
+        }
+    });
+}
+
 
 var vote = (user, action) => {
    return current()
@@ -84,8 +98,8 @@ var vote = (user, action) => {
 				return root.ref(`current/${firstKey}`).update(cur).then((data) => {return cur});
 			} else if(cur[action][user]) {
 				throw createError(1, "el usuario ya voto", cur);
-            } else {
-				return add(cur.user, cur.points, cur.isAddition)
+            } else if(action == APPROVE && Object.keys(cur[action]).length == MAX_APPROVES - 1) {
+                return add(cur.user, cur.points, cur.isAddition)
 					.then(() => {
 						return root.ref(`current/${firstKey}`).remove();
 					})
@@ -98,13 +112,26 @@ var vote = (user, action) => {
 					.catch((err) => {
 						throw err;
 					})
-			}
+            } else if(action == DENY && Object.keys(cur[action]).length == MAX_APPROVES - 1) {
+                    return root.ref(`current/${firstKey}`).remove()
+
+					.then(() => {
+						cur.isRemoved = true;
+						return cur;
+					})
+
+					.catch((err) => {
+						throw err;
+					})
+            }
 		})
 };
 
 let pretty = (persons) => {
 	let users = [];
-	persons.forEach((child) => { users.push(child.val()) });
+	persons.forEach((child) => {
+	     users.push(child.val ? child.val() : child)
+     });
 	users.sort((a,b) => { return a["points"] > b["points"] ? -1 : (a["points"] < b["points"] ? 1 : 0) })
 	let result = "";
 	for(let user in users) {
@@ -117,8 +144,9 @@ module.exports = {
 	add : add,
 	get : get,
 	current : current,
+	currents : currents,
 	push : push,
 	vote : vote,
-	APPROVE : "approve",
-	DENY : "deny"
+	APPROVE : APPROVE,
+	DENY : DENY
 };

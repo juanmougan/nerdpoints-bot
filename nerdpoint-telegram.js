@@ -30,7 +30,9 @@ let vote = (msg, action) => {
     nerdpoints.vote(msg.from.id, action)
         .then((data) => {
             if(data.isRemoved) {
-                nerdpoints.get(true).then((data) => {  bot.sendMessage(msg.chat.id, `Votación ${action == nerdpoints.APPROVE ? "aprobada" : "denegada"}! la lista quedo :\n${data}` , { parse_mode : "Markdown" }); })
+                nerdpoints.get(true).then((list) => {
+                    bot.sendMessage(msg.chat.id, `Se *${action == nerdpoints.APPROVE ? "aprobó" : "denegó"}*! los *${data.points}* de *${userToString(data.user)}*\n\nLa lista quedó:\n${list}` , { parse_mode : "Markdown" });
+                })
             } else {
                 bot.sendMessage(msg.chat.id, `${action == nerdpoints.APPROVE ? "Approved" : "Denied"}!!! *Falta 1 voto mas!!*`, {parse_mode : "Markdown"});
             }
@@ -81,7 +83,7 @@ bot.onText(/\/deny/, (msg, match) => {
 });
 
 bot.onText(/\/current/, (msg, match) => {
-    nerdpoints.current(3)
+    nerdpoints.currents(true)
         .then((data) => {
             let text = "";
             data.forEach((item, index) => {
