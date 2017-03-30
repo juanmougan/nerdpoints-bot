@@ -13,7 +13,7 @@ let validPayload = (msg) => {
 		if(pointsRaw) {
 			let sign = /[\+\-]?/.exec(pointsRaw[0])[0];
 			let points = parseInt(/\d+/.exec(pointsRaw[0])[0]) | 0;
-            let points = points > 100 ? 100 : points;
+            points = points > 100 ? 100 : points;
 			return {"user" : user, "points" : points, "isAddition" : sign == "+" || sign == 0};
 		} else {
 			return undefined;
